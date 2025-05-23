@@ -63,10 +63,16 @@ class specialScratchClasses:
 class ChatBot:
     def __init__(self):
         self.questions = [
-            "hello", "hi", "how are you", "what is your name", "bye", "see you"
+            "hello", "hi", "hey",
+            "how are you", "how do you do", "how are you doing",
+            "what is your name", "what's your name", "who are you",
+            "bye", "goodbye", "see you", "see ya", "later"
         ]
         self.answers = [
-            "Hello!", "Hi there!", "I'm fine, thanks!", "I'm a chatbot!", "Goodbye!", "See you later!"
+            "Hello!", "Hi there!", "Hey!",
+            "I'm fine, thanks!", "I'm fine, thanks!", "I'm fine, thanks!",
+            "I'm a chatbot!", "I'm a chatbot!", "I'm a chatbot!",
+            "Goodbye!", "Goodbye!", "See you later!", "See you later!", "See you later!"
         ]
 
         self.vectorizer = CountVectorizer()
@@ -90,8 +96,11 @@ class ChatBot:
                 break
             clean_input = self.preprocess(userInput)
             input_vec = self.vectorizer.transform([clean_input])
-            prediction = self.model.predict(input_vec)
-            print("Chatbot:", prediction[0])
+            try:
+                prediction = self.model.predict(input_vec)
+                print("Chatbot:", prediction[0])
+            except Exception:
+                print("Chatbot: Sorry, I didn't understand that.")
 
 
 
