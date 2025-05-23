@@ -1,7 +1,9 @@
+import re
 import requests
 import scratchattach as sa
 from requests import HTTPError
-
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.naive_bayes import MultinomialNB
 
 class specialScratchClasses:
     def __init__(self):
@@ -41,9 +43,12 @@ class specialScratchClasses:
 
         return char_decode
 
-    def login_and_connect(self, username, password, projectID):
+    def login_and_connect(self, username, password, projectID, variable, value):
         self.session = sa.login(username, password)
         self.cloud = self.session.connect_cloud(projectID)
+        self.cloud.connect()
+        self.cloud.set(variable, value)
+
 
     def get_weather(self, city_input):
         city = city_input
@@ -54,4 +59,39 @@ class specialScratchClasses:
         data = response.json()
         current_temp = data['current_condition'][0]['temp_F']
         return f"Current temperature in {city}: {current_temp}°F"
+
+class ChatBot:
+    def __init__(self):
+        self.questions = [
+            "hello", "hi", "how are you", "what is your name", "bye", "see you"
+        ]
+        self.answers = [
+            "Hello!", "Hi there!", "I'm fine, thanks!", "I'm a chatbot!", "Goodbye!", "See you later!"
+        ]
+
+        self.vectorizer = CountVectorizer()
+        self.X = self.vectorizer.fit_transform(self.questions)
+
+        self.model = MultinomialNB()
+        self.model.fit(self.X, self.answers)
+
+    def preprocess(self, text):
+        text = text.lower()
+        text = re.sub(r'[^a-z0-9\s]', '', text)
+        text = re.sub(r'\s+', ' ', text).strip()
+        return text
+
+    def chat(self):
+        print("Chatbot: Hi! Type something (or 'exit' to quit):")
+        while True:
+            userInput = input("You: ")
+            if userInput.lower() in ["exit", "quit"]:
+                print("Chatbot: Bye!")
+                break
+            clean_input = self.preprocess(userInput)
+            input_vec = self.vectorizer.transform([clean_input])
+            prediction = self.model.predict(input_vec)
+            print("Chatbot:", prediction[0])
+
+
 
